@@ -331,7 +331,14 @@
                 this.minSalary = this.workerList[0].salary.amount
                 this.maxSalary = this.workerList[this.workerList.length-1].salary.amount
 
-                return this.searchSalary
+                let data = this.workerList.filter((el) => {
+                        if ( el.salary.amount <= this.searchSalary) {
+                            return el
+                        }
+
+                })
+
+                return data
             },
             FilterDepartment() {
                 let data = this.workerList.filter((el) => {
