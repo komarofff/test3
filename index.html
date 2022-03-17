@@ -87,8 +87,9 @@
             <div>
                 <h2>Show salary per department</h2>
                 <pre>
-<!--                {{ totalCurrency }}-->
+
                     {{ summaryForAllDepartments}}
+
 
                 </pre>
             </div>
@@ -127,7 +128,7 @@
             currency: null,
             currentCurrency: null,
             currencyName: null,
-            departmenName: null,
+            departmentName: null,
             newDepartment: null,
             currentDepartment: null,
             department: null,
@@ -200,7 +201,8 @@
                 }
             ],
             salaryDepartment: [],
-            totalCurrency: []
+            totalCurrency: [],
+            totalDep:[]
 
         },
         computed: {
@@ -244,9 +246,11 @@
                 this.departmentList.forEach((el) => {
                     this.currentDepartment = this.workerList.filter((n) => n.department === el)
                     let departmentIndex = this.departmentList.indexOf(el)
-                    this.departmenName = this.departmentList[departmentIndex]
+                    this.departmentName = this.departmentList[departmentIndex]
+
                     if (this.currentDepartment.length > 0) {
-                        this.salaryDepartment.push({"department": this.departmenName, "list": this.currentDepartment})
+
+                        this.salaryDepartment.push({"department": this.departmentName, "list": this.currentDepartment})
                     }
                 })
                 return this.salaryDepartment
