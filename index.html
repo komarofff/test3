@@ -48,9 +48,7 @@
                             <select v-model="department">
                                 <option v-for="dep in departmentList" required>{{ dep }}</option>
                             </select>
-                            <!--                            <br>-->
-                            <!--                        <label>Dont see your department? Add new</label><br>-->
-                            <!--                            <input type="text" v-model="newDepartment">-->
+
                         </p>
                         <p><label>Salary</label><br>
                             <input type="number" v-model="salary" required></p>
@@ -82,11 +80,14 @@
                     <td>Total in {{ total.currency}}</td>
                     <td>{{ total.total}}</td>
                 </tr>
+                <tr>
+                    <td colspan="5"></td>
+                </tr>
 
                 <template v-for="items in departmentSum">
                     <tr >
-                        <td colspan="2"> in department </td>
-                        <td>{{items.department}}</td>
+                        <td colspan="2"></td>
+                        <td><strong>in department {{items.department}}</strong></td>
                         <td></td>
                         <td></td>
                     </tr>
@@ -104,7 +105,21 @@
 
         <div>
             <h2>Search</h2>
-            
+
+            <input type="search" v-model="searchText" >
+
+            <p><label>Department</label><br>
+                <select v-model="searchDepartment"  multiple >
+                    <option v-for="dep in departmentList" >{{ dep }}</option>
+                </select>
+
+            </p>
+            <p>Salary<br>
+                <input type="range"v-model="searchSalary" >
+            </p>
+           {{ FilterText}}
+            {{FilterSalary}}
+            {{ FilterDepartment}}
         </div>
 
     </div>
@@ -209,7 +224,10 @@
             ],
             salaryDepartment: [],
             totalCurrency: [],
-            totalDep: []
+            totalDep: [],
+            searchText: null,
+            searchDepartment: [],
+            searchSalary: null,
 
         },
         computed: {
@@ -277,6 +295,16 @@
                 })
                 return this.salaryDepartment
             },
+            FilterText(){
+                return this.searchText
+            },
+            FilterSalary(){
+                return this.searchSalary
+            },
+            FilterDepartment(){
+                return this.searchDepartment
+            },
+
 
         },
         methods: {
