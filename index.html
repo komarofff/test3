@@ -117,12 +117,19 @@
                 </p>
                 <p>Salary<br>
                     <input type="range" v-model="searchSalary" :min="minSalary" :max="maxSalary" >
-                    <input type="num" v-model="searchSalary" :min="minSalary" :max="maxSalary" :placeholder="minSalary">
+                    <input type="num" v-model="searchSalary" :min="minSalary" :max="maxSalary" >
 
                 </p>
             </div>
             <p>{{ FilterText}}</p>
-            <p>{{FilterSalary}}</p>
+            <template v-if=" FilterSalary.length > 0">
+                <div>
+                    <h2>Salary from {{minSalary}} to {{searchSalary}}</h2>
+                    <ul>
+                        <li v-for="person in  FilterSalary"> {{person.firstName}} {{ person.lastName}} - salary  {{person.salary.amount}} {{person.salary.currency}} </li>
+                    </ul>
+                </div>
+            </template>
 
             <template v-if=" FilterDepartment.length > 0">
                 <div>
@@ -132,8 +139,7 @@
                     </ul>
                 </div>
             </template>
-            minSalary-{{minSalary}}
-            maxSalary-{{maxSalary}}
+
             <pre>{{workerList}}</pre>
         </div>
 
@@ -252,6 +258,7 @@
             this.workerList.sort((prev, next) => prev.salary.amount - next.salary.amount)
             this.minSalary = this.workerList[0].salary.amount
             this.maxSalary = this.workerList[this.workerList.length-1].salary.amount
+            this.searchSalary = this.minSalary
         },
         computed: {
             salarySum() {
