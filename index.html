@@ -105,7 +105,7 @@
 
         <div>
             <h2>Search</h2>
-            <div style="display:flex; width:100%; justify-content: space-around; align-items: start">
+            <div style="display:flex; width:100%; justify-content: space-between; align-items: start">
                 <p><label>Search something</label><br>
                     <input type="text" v-model="searchText">
                 </p>
@@ -123,13 +123,12 @@
             <p>{{FilterSalary}}</p>
 
             <template v-if=" FilterDepartment.length > 0">
-                {{FilterDepartment}}
-                <p>
-                <h2>Department</h2>
-                <ul v-for="person in  FilterDepartment">
-                    <li>{{person.department}} - {{person.firstName}} {{ person.lastName}} </li>
-                </ul>
-                </p>
+                <div>
+                    <h2>Persons in Departments</h2>
+                    <ul>
+                        <li v-for="person in  FilterDepartment">Department {{person.department}} - {{person.firstName}} {{ person.lastName}}</li>
+                    </ul>
+                </div>
             </template>
 
             <pre>{{workerList}}</pre>
@@ -320,7 +319,6 @@
                 return this.searchSalary
             },
             FilterDepartment() {
-
                 let data = this.workerList.filter((el) => {
                     for (let i = 0; i < this.searchDepartment.length; i++) {
                         if (el.department === this.searchDepartment[i]) {
@@ -328,7 +326,6 @@
                         }
                     }
                 })
-
                 return data
             },
 
