@@ -152,7 +152,6 @@
                 </div>
             </template>
 
-            <pre>{{workerList}}</pre>
         </div>
 
 
@@ -267,9 +266,10 @@
 
         },
         beforeMount() {
-            this.workerList.sort((prev, next) => prev.salary.amount - next.salary.amount)
-            this.minSalary = this.workerList[0].salary.amount
-            this.maxSalary = this.workerList[this.workerList.length - 1].salary.amount
+            let startArray = this.workerList
+            startArray.sort((prev, next) => prev.salary.amount - next.salary.amount)
+            this.minSalary = startArray[0].salary.amount
+            this.maxSalary = startArray[startArray.length - 1].salary.amount
             this.searchSalary = this.minSalary
         },
         computed: {
@@ -361,12 +361,12 @@
                 }
             },
             FilterSalary() {
+                let filterArray = this.workerList
+                filterArray.sort((prev, next) => prev.salary.amount - next.salary.amount)
+                this.minSalary = filterArray[0].salary.amount
+                this.maxSalary = filterArray[filterArray.length - 1].salary.amount
 
-                this.workerList.sort((prev, next) => prev.salary.amount - next.salary.amount)
-                this.minSalary = this.workerList[0].salary.amount
-                this.maxSalary = this.workerList[this.workerList.length - 1].salary.amount
-
-                let data = this.workerList.filter((el) => {
+                let data = filterArray.filter((el) => {
                     if (el.salary.amount <= this.searchSalary) {
                         return el
                     }
