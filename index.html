@@ -82,13 +82,18 @@
                     <td>Total in {{ total.currency}}</td>
                     <td>{{ total.total}}</td>
                 </tr>
+<!--                <tr v-for="total in departmentSum">-->
+<!--                    <td colspan="3"></td>-->
+<!--                    <td>Total in {{ total.currency}}</td>-->
+<!--                    <td>{{ total.total}}</td>-->
+<!--                </tr>-->
                 </tfoot>
             </table>
             <div>
                 <h2>Show salary per department</h2>
                 <pre>
 
-                    {{ summaryForAllDepartments}}
+                    {{ departmentSum}}
 
 
                 </pre>
@@ -220,9 +225,16 @@
                 this.salarySumForDepartments = []
                 this.summaryForAllDepartments
                 this.salaryDepartment.forEach((el) => {
-                    let cur = el.currency
-                    let sal = el.list.reduce((acc, i) => acc + i.salary.amount, 0)
-                    this.salarySumForDepartments.push({"currency": cur, "total": sal})
+                    let newDepName = el.department
+                    let fullData= []
+                    el.list.forEach((data)=>{
+                        let newDepCurency =  data.cur
+                        let newDepTotalInThisCurrency =  data.totalInDepartment
+                        let newWorkers =  data.workers
+                        fullData.push({"currency":newDepCurency, "total": newDepTotalInThisCurrency, "workers": newWorkers })
+                    })
+
+                    this.salarySumForDepartments.push({"department": newDepName, "data": fullData})
                 })
                 return this.salarySumForDepartments
             },
