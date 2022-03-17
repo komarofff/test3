@@ -66,7 +66,7 @@
                 <h2 v-if="error" style="color:red">Something wrong! </h2>
             </div>
             <h2>Workers</h2>
-            <table border="1">
+            <table border="1" style="width:100%">
                 <tbody>
                 <tr v-for="(worker, index) in workerList" :key="worker.id">
                     <td>{{index + 1}}.</td>
@@ -82,27 +82,29 @@
                     <td>Total in {{ total.currency}}</td>
                     <td>{{ total.total}}</td>
                 </tr>
-<!--                <tr v-for="total in departmentSum">-->
-<!--                    <td colspan="3"></td>-->
-<!--                    <td>Total in {{ total.currency}}</td>-->
-<!--                    <td>{{ total.total}}</td>-->
-<!--                </tr>-->
+
+                <template v-for="items in departmentSum">
+                    <tr >
+                        <td colspan="2"> in department </td>
+                        <td>{{items.department}}</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                <tr v-for="data in items.data">
+                    <td colspan="3"></td>
+                    <td>Total in  {{ data.currency}}</td>
+                    <td>{{ data.total}}</td>
+                </tr>
+                </template>
                 </tfoot>
             </table>
-            <div>
-                <h2>Show salary per department</h2>
-                <pre>
 
-                    {{ departmentSum}}
-
-
-                </pre>
-            </div>
         </div>
 
 
         <div>
             <h2>Search</h2>
+            
         </div>
 
     </div>
