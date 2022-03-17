@@ -38,7 +38,7 @@
         <div>
             <div>
                 <h2>Add new worker</h2>
-                <form @submit.prevent="AddNewworker">
+                <form @submit.prevent="AddNewWorker">
                     <fieldset>
                         <p><label>Name</label><br>
                             <input type="text" v-model="name" required></p>
@@ -77,17 +77,18 @@
                 </tr>
                 </tbody>
                 <tfoot>
-                <tr>
+                <tr v-for="total in salarySum">
                     <td colspan="3"></td>
-                    <td>Summary</td>
-                    <td>{{salarySum}} USD</td>
+                    <td>Total in {{ total.currency}}</td>
+                    <td>{{ total.total}}</td>
                 </tr>
                 </tfoot>
             </table>
             <div>
                 <h2>Show salary per department</h2>
                 <pre>
-                {{ summaryForAllCurrencies }}
+<!--                {{ totalCurrency }}-->
+                    {{ summaryForAllDepartments}}
 
                 </pre>
             </div>
@@ -121,10 +122,14 @@
             name: null,
             surname: null,
             salary: 0,
+            salarySumForAllCurrencies: [],
+            salarySumForDepartments: [],
             currency: null,
             currentCurrency: null,
             currencyName: null,
+            departmenName: null,
             newDepartment: null,
+            currentDepartment: null,
             department: null,
             departmentList: ["IT", "Sales", "Administration"],
             currencyList: ["USD", "EURO", "PLN"],
@@ -194,33 +199,62 @@
                     "completed": false
                 }
             ],
-            salaryDepartment: []
+            salaryDepartment: [],
+            totalCurrency: []
+
         },
         computed: {
             salarySum() {
-                return this.workerList.reduce((acc, i) => acc + i.salary.amount, 0);
+                this.salarySumForAllCurrencies = []
+                this.summaryForAllCurrencies
+                this.totalCurrency.forEach((el) => {
+                    let cur = el.currency
+                    let sal = el.list.reduce((acc, i) => acc + i.salary.amount, 0)
+                    this.salarySumForAllCurrencies.push({ "currency" : cur, "total": sal})
+                })
+                return this.salarySumForAllCurrencies
+            },
+            departmentSum() {
+                this.salarySumForDepartments = []
+                this.summaryForAllDepartments
+                this.salaryDepartment.forEach((el) => {
+                    let cur = el.currency
+                    let sal = el.list.reduce((acc, i) => acc + i.salary.amount, 0)
+                    this.salarySumForDepartments.push({ "currency" : cur, "total": sal})
+                })
+                return this.salarySumForDepartments
             },
             getId() {
                 return this.workerList.length + 1
             },
             summaryForAllCurrencies() {
-
-                //return this.workerList.filter((n)=> n.salary.currency === "USD")
-                this.salaryDepartment = []
-                this.currencyList.forEach((el)=>{
-                    this.currentCurrency = this.workerList.filter((n)=> n.salary.currency === el)
+                this.totalCurrency = []
+                this.currencyList.forEach((el) => {
+                    this.currentCurrency = this.workerList.filter((n) => n.salary.currency === el)
                     let currencyIndex = this.currencyList.indexOf(el)
                     this.currencyName = this.currencyList[currencyIndex]
-                    if(this.currentCurrency.length > 0) {
-                       this.salaryDepartment.push( {"currency": this.currencyName, "list": this.currentCurrency})
+                    if (this.currentCurrency.length > 0) {
+                        this.totalCurrency.push({"currency": this.currencyName, "list": this.currentCurrency})
                     }
                 })
-
+                return this.totalCurrency
+            },
+            summaryForAllDepartments() {
+                this.salaryDepartment = []
+                this.departmentList.forEach((el) => {
+                    this.currentDepartment = this.workerList.filter((n) => n.department === el)
+                    let departmentIndex = this.departmentList.indexOf(el)
+                    this.departmenName = this.departmentList[departmentIndex]
+                    if (this.currentDepartment.length > 0) {
+                        this.salaryDepartment.push({"department": this.departmenName, "list": this.currentDepartment})
+                    }
+                })
                 return this.salaryDepartment
-            }
+            },
+
         },
         methods: {
-            AddNewworker() {
+            AddNewWorker() {
                 if (this.name && this.surname && this.department && this.salary && this.currency) {
                     this.formValidate = true
                 } else {
