@@ -202,7 +202,7 @@
             ],
             salaryDepartment: [],
             totalCurrency: [],
-            totalDep:[]
+            totalDep: []
 
         },
         computed: {
@@ -212,7 +212,7 @@
                 this.totalCurrency.forEach((el) => {
                     let cur = el.currency
                     let sal = el.list.reduce((acc, i) => acc + i.salary.amount, 0)
-                    this.salarySumForAllCurrencies.push({ "currency" : cur, "total": sal})
+                    this.salarySumForAllCurrencies.push({"currency": cur, "total": sal})
                 })
                 return this.salarySumForAllCurrencies
             },
@@ -222,7 +222,7 @@
                 this.salaryDepartment.forEach((el) => {
                     let cur = el.currency
                     let sal = el.list.reduce((acc, i) => acc + i.salary.amount, 0)
-                    this.salarySumForDepartments.push({ "currency" : cur, "total": sal})
+                    this.salarySumForDepartments.push({"currency": cur, "total": sal})
                 })
                 return this.salarySumForDepartments
             },
@@ -249,8 +249,16 @@
                     this.departmentName = this.departmentList[departmentIndex]
 
                     if (this.currentDepartment.length > 0) {
-
-                        this.salaryDepartment.push({"department": this.departmentName, "list": this.currentDepartment})
+                        let currrArray = []
+                        this.currencyList.forEach((curr) => {
+                            let depCurrency = this.currentDepartment.filter((elem) => elem.salary.currency === curr)
+                            let totalDep = depCurrency.reduce((acc, i) => acc + i.salary.amount, 0)
+                            if (totalDep > 0) {
+                                currrArray.push({"cur": curr, "totalInDepartment": totalDep, "workers": depCurrency})
+                            }
+                        })
+                        //this.salaryDepartment.push({"department": this.departmentName, "list": this.currentDepartment, "data": currrArray})
+                        this.salaryDepartment.push({"department": this.departmentName, "list": currrArray})
                     }
                 })
                 return this.salaryDepartment
