@@ -87,7 +87,7 @@
                 <template v-for="items in departmentSum">
                     <tr>
                         <td colspan="2"></td>
-                        <td><strong>in department {{items.department}}</strong></td>
+                        <td style="text-align:right"><strong>in department {{items.department}}</strong></td>
                         <td></td>
                         <td></td>
                     </tr>
@@ -106,7 +106,7 @@
         <div>
             <h2>Search</h2>
             <div style="display:flex; width:100%; justify-content: space-between; align-items: start">
-                <p><label>Search something</label><br>
+                <p><label>Find person</label><br>
                     <input type="text" v-model="searchText">
                 </p>
                 <p><label>Department</label><br>
@@ -239,11 +239,11 @@
                 },
                 {
                     "title": "Add search form",
-                    "completed": false,
+                    "completed": true,
                     "subtaskList": [
-                        {"title": "person (text)", "completed": false},
+                        {"title": "person (text)", "completed": true},
                         {"title": "department (multiple choice)", "completed": true},
-                        {"title": "salary (range)", "completed": false}
+                        {"title": "salary (range)", "completed": true}
                     ]
                 },
                 {
