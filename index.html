@@ -11,8 +11,8 @@
 <div id="app">
 
 
-    <div style="display: grid; grid-template-columns: repeat(3,1fr); grid-gap: 2em;">
-        <div>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; grid-gap: 2em;">
+        <div style="grid-column: 1; grid-row:2">
             <h1>TODO</h1>
             <ol>
                 <template v-for="task in taskList">
@@ -121,7 +121,9 @@
             </div>
             <p>{{ FilterText}}</p>
             <p>{{FilterSalary}}</p>
+
             <template v-if=" FilterDepartment.length > 0">
+                {{FilterDepartment}}
                 <p>
                 <h2>Department</h2>
                 <ul v-for="person in  FilterDepartment">
@@ -221,17 +223,17 @@
                     "completed": false,
                     "subtaskList": [
                         {"title": "person (text)", "completed": false},
-                        {"title": "department (multiple choice)", "completed": false},
+                        {"title": "department (multiple choice)", "completed": true},
                         {"title": "salary (range)", "completed": false}
                     ]
                 },
                 {
                     "title": "Add summary of salary per department",
-                    "completed": false
+                    "completed": true
                 },
                 {
                     "title": "Other improvements (feel free to add other improvements)",
-                    "completed": false
+                    "completed": true
                 }
             ],
             salaryDepartment: [],
@@ -326,7 +328,7 @@
                         }
                     }
                 })
-                //return this.searchDepartment
+
                 return data
             },
 
