@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Recruitment task</title>
+    <meta name="robots" content="noindex">
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.24/browser.min.js"></script>
+</head>
+<body>
+<div id="app">
+
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; grid-gap: 2em;">
+        <div style="grid-column: 1; grid-row:2">
+            <h1>TODO</h1>
+            <ol>
+                <template v-for="task in taskList">
+                    <task-item :task="task">
+                        <ol type="a" v-if="task.subtaskList">
+                            <template v-for="subtask in task.subtaskList">
+                                <task-item :task="subtask"></task-item>
+                            </template>
+                        </ol>
+                    </task-item>
+                </template>
+            </ol>
+            <h2>Hints</h2>
+            <ol>
+                <li>
+                    yarn global add browser-sync<br>
+                    browser-sync --watch .
+                </li>
+                <li>&lt;datalist&gt;</li>
+            </ol>
+        </div>
+
+        <div>
+            <div>
+                <h2>Add new worker</h2>
+                <form @submit.prevent="AddNewWorker">
+                    <fieldset>
+                        <p><label>Name</label><br>
+                            <input type="text" v-model="name" required></p>
+                        <p><label>Surname</label><br>
+                            <input type="text" v-model="surname" required></p>
+                        <p><label>Department</label><br>
+                            <select v-model="department">
+                                <option v-for="dep in departmentList" required>{{ dep }}</option>
+                            </select>
+
+                        </p>
+                        <p><label>Salary</label><br>
+                            <input type="number" v-model="salary" required></p>
+                        <p><label>Currency</label><br>
+                            <select v-model="currency" required>
+                                <option v-for="cur in currencyList">{{ cur }}</option>
+                            </select></p>
+                        <p>
+                            <button type="submit">Add</button>
+                        </p>
+                    </fieldset>
+                </form>
+                <h2 v-if="error" style="color:red">Something wrong! </h2>
+            </div>
+            <h2>Workers</h2>
+            <table border="1" style="width:100%">
+                <tbody>
+                <tr v-for="(worker, index) in workerList" :key="worker.id">
+                    <td>{{index + 1}}.</td>
+                    <td>{{worker.firstName}}</td>
+                    <td>{{worker.lastName}}</td>
+                    <td>{{worker.department}}</td>
+                    <td>{{worker.salary.amount}} {{worker.salary.currency}}</td>
+                </tr>
+                </tbody>
+                <tfoot>
+                <tr v-for="total in salarySum">
+                    <td colspan="3"></td>
+                    <td>Total in {{ total.currency}}</td>
+                    <td>{{ total.total}}</td>
+                </tr>
+                <tr>
+                    <td colspan="5"></td>
+                </tr>
+
+                <template v-for="items in departmentSum">
+                    <tr>
+                        <td colspan="2"></td>
+                        <td style="text-align:right"><strong>in department {{items.department}}</strong></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr v-for="data in items.data">
+                        <td colspan="3"></td>
+                        <td>Total in {{ data.currency}}</td>
+                        <td>{{ data.total}}</td>
+                    </tr>
+                </template>
+                </tfoot>
+            </table>
+
+        </div>
+
+
+        <div>
+            <h2>Search</h2>
+            <div style="display:flex; width:100%; justify-content: space-between; align-items: start">
+                <p><label>Find person</label><br>
+                    <input type="text" v-model="searchText">
+                </p>
+                <p><label>Department</label><br>
+                    <select v-model="searchDepartment" multiple>
+                        <option v-for="dep in departmentList">{{ dep }}</option>
+                    </select>
+
+                </p>
+                <p>Salary<br>
+                    <input type="range" v-model="searchSalary" :min="minSalary" :max="maxSalary">
+                    <input type="num" v-model="searchSalary" :min="minSalary" :max="maxSalary">
+
+                </p>
+            </div>
+            <template v-if=" FilterText.length > 0">
+                <div>
+                    <h2>Person </h2>
+                    <ul>
+                        <li v-for="person in  FilterText"> {{person.firstName}} {{ person.lastName}}
+                        </li>
+                    </ul>
+                </div>
+            </template>
+            <template v-if=" FilterSalary.length > 0">
+                <div>
+                    <h2>Salary from {{minSalary}} to {{searchSalary}}</h2>
+                    <ul>
+                        <li v-for="person in  FilterSalary"> {{person.firstName}} {{ person.lastName}} - salary
+                            {{person.salary.amount}} {{person.salary.currency}}
+                        </li>
+                    </ul>
+                </div>
+            </template>
+
+            <template v-if=" FilterDepartment.length > 0">
+                <div>
+                    <h2>Persons in Departments</h2>
+                    <ul>
+                        <li v-for="person in  FilterDepartment">Department {{person.department}} - {{person.firstName}}
+                            {{ person.lastName}}
+                        </li>
+                    </ul>
+                </div>
+            </template>
+
+        </div>
+
+
+    </div>
+</div>
+
+<script>
+    const TaskItem = Vue.component('task-item', {
+        props: {
+            task: Object
+        },
+        template: '<li>{{task.title}} {{ task.completed ? "✅" : "❌"}}<slot name="default"></slot></li>'
+    });
+
+    new Vue({
+        el: "#app",
+        components: {
+            TaskItem
+        },
+
+        data: {
+            error: false,
+            formValidate: false,
+            name: null,
+            surname: null,
+            salary: 0,
+            salarySumForAllCurrencies: [],
+            salarySumForDepartments: [],
+            currency: null,
+            currentCurrency: null,
+            currencyName: null,
+            departmentName: null,
+            newDepartment: null,
+            currentDepartment: null,
+            department: null,
+            departmentList: ["IT", "Sales", "Administration"],
+            currencyList: ["USD", "EURO", "PLN"],
+            workerList: [
+                {
+                    "id": 1,
+                    "firstName": "John",
+                    "lastName": "Smith",
+                    "department": "IT",
+                    "salary": {"amount": 3000, "currency": "USD"}
+                },
+                {
+                    "id": 2,
+                    "firstName": "Jane",
+                    "lastName": "Doe",
+                    "department": "IT",
+                    "salary": {"amount": 3000.50, "currency": "USD"}
+                },
+                {
+                    "id": 3,
+                    "firstName": "Bob",
+                    "lastName": "Colman",
+                    "department": "Sales",
+                    "salary": {"amount": 9000, "currency": "USD"}
+                },
+                {
+                    "id": 4,
+                    "firstName": "Barbara",
+                    "lastName": "O'Connor",
+                    "department": "Sales",
+                    "salary": {"amount": 4000, "currency": "USD"}
+                },
+                {
+                    "id": 5,
+                    "firstName": "Adam",
+                    "lastName": "Murphy",
+                    "department": "Administration",
+                    "salary": {"amount": 2000, "currency": "USD"}
+                }
+            ],
+            taskList: [
+                {
+                    "title": "Add form to add new worker",
+                    "completed": true,
+                    "subtaskList": [
+                        {"title": "firstName", "completed": true},
+                        {"title": "lastName", "completed": true},
+                        {"title": "department", "completed": true},
+                        {"title": "salary amount and currency", "completed": true}
+                    ]
+                },
+                {
+                    "title": "Add search form",
+                    "completed": true,
+                    "subtaskList": [
+                        {"title": "person (text)", "completed": true},
+                        {"title": "department (multiple choice)", "completed": true},
+                        {"title": "salary (range)", "completed": true}
+                    ]
+                },
+                {
+                    "title": "Add summary of salary per department",
+                    "completed": true
+                },
+                {
+                    "title": "Other improvements (feel free to add other improvements)",
+                    "completed": true
+                }
+            ],
+            salaryDepartment: [],
+            totalCurrency: [],
+            totalDep: [],
+            searchText: null,
+            searchDepartment: [],
+            searchSalary: null,
+            minSalary: null,
+            maxSalary: null
+
+        },
+        beforeMount() {
+            let startArray = this.workerList
+            startArray.sort((prev, next) => prev.salary.amount - next.salary.amount)
+            this.minSalary = startArray[0].salary.amount
+            this.maxSalary = startArray[startArray.length - 1].salary.amount
+            this.searchSalary = this.minSalary
+        },
+        computed: {
+            salarySum() {
+                this.salarySumForAllCurrencies = []
+                this.summaryForAllCurrencies
+                this.totalCurrency.forEach((el) => {
+                    let cur = el.currency
+                    let sal = el.list.reduce((acc, i) => acc + i.salary.amount, 0)
+                    this.salarySumForAllCurrencies.push({"currency": cur, "total": sal})
+                })
+                return this.salarySumForAllCurrencies
+            },
+            departmentSum() {
+                this.salarySumForDepartments = []
+                this.summaryForAllDepartments
+                this.salaryDepartment.forEach((el) => {
+                    let newDepName = el.department
+                    let fullData = []
+                    el.list.forEach((data) => {
+                        let newDepCurency = data.cur
+                        let newDepTotalInThisCurrency = data.totalInDepartment
+                        let newWorkers = data.workers
+                        fullData.push({
+                            "currency": newDepCurency,
+                            "total": newDepTotalInThisCurrency,
+                            "workers": newWorkers
+                        })
+                    })
+
+                    this.salarySumForDepartments.push({"department": newDepName, "data": fullData})
+                })
+                return this.salarySumForDepartments
+            },
+            getId() {
+                return this.workerList.length + 1
+            },
+            summaryForAllCurrencies() {
+                this.totalCurrency = []
+                this.currencyList.forEach((el) => {
+                    this.currentCurrency = this.workerList.filter((n) => n.salary.currency === el)
+                    let currencyIndex = this.currencyList.indexOf(el)
+                    this.currencyName = this.currencyList[currencyIndex]
+                    if (this.currentCurrency.length > 0) {
+                        this.totalCurrency.push({"currency": this.currencyName, "list": this.currentCurrency})
+                    }
+                })
+                return this.totalCurrency
+            },
+            summaryForAllDepartments() {
+                this.salaryDepartment = []
+                this.departmentList.forEach((el) => {
+                    this.currentDepartment = this.workerList.filter((n) => n.department === el)
+                    let departmentIndex = this.departmentList.indexOf(el)
+                    this.departmentName = this.departmentList[departmentIndex]
+
+                    if (this.currentDepartment.length > 0) {
+                        let currrArray = []
+                        this.currencyList.forEach((curr) => {
+                            let depCurrency = this.currentDepartment.filter((elem) => elem.salary.currency === curr)
+                            let totalDep = depCurrency.reduce((acc, i) => acc + i.salary.amount, 0)
+                            if (totalDep > 0) {
+                                currrArray.push({"cur": curr, "totalInDepartment": totalDep, "workers": depCurrency})
+                            }
+                        })
+                        //this.salaryDepartment.push({"department": this.departmentName, "list": this.currentDepartment, "data": currrArray})
+                        this.salaryDepartment.push({"department": this.departmentName, "list": currrArray})
+                    }
+                })
+                return this.salaryDepartment
+            },
+            FilterText() {
+                if (this.searchText) {
+                    let data = this.workerList.filter((el) => {
+                        let searchNameElement = el.firstName.toLowerCase()
+                        let searchSurnameElement = el.lastName.toLowerCase()
+                        let inputElement = this.searchText.toLowerCase()
+                        if (searchNameElement.includes(inputElement)) {
+                            return el
+                        }
+                        if (searchSurnameElement.includes(this.searchText.toLowerCase())) {
+                            return el
+                        }
+
+                    })
+                    return data
+                } else {
+                    return []
+                }
+            },
+            FilterSalary() {
+                let filterArray = this.workerList
+                filterArray.sort((prev, next) => prev.salary.amount - next.salary.amount)
+                this.minSalary = filterArray[0].salary.amount
+                this.maxSalary = filterArray[filterArray.length - 1].salary.amount
+
+                let data = filterArray.filter((el) => {
+                    if (el.salary.amount <= this.searchSalary) {
+                        return el
+                    }
+
+                })
+
+                return data
+            },
+            FilterDepartment() {
+                let data = this.workerList.filter((el) => {
+                    for (let i = 0; i < this.searchDepartment.length; i++) {
+                        if (el.department === this.searchDepartment[i]) {
+                            return el
+                        }
+                    }
+                })
+                return data
+            },
+
+
+        },
+        methods: {
+            AddNewWorker() {
+                if (this.name && this.surname && this.department && this.salary && this.currency) {
+                    this.formValidate = true
+                } else {
+                    this.error = true
+                }
+                if (this.formValidate) {
+                    this.workerList.push(
+                        {
+                            "id": this.getId,
+                            "firstName": this.name,
+                            "lastName": this.surname,
+                            "department": this.department,
+                            "salary": {"amount": parseFloat(this.salary), "currency": this.currency}
+                        })
+                    this.formValidate = false
+                    this.error = false
+                    this.name = null
+                    this.surname = null
+                    this.department = null
+                    this.salary = null
+                    this.currency = null
+                }
+            }
+        }
+    });
+</script>
+</body>
+</html>
